@@ -1,14 +1,12 @@
 {
-  "name": "@prb/solidity-template",
-  "description": "Template for writing Solidity smart contracts",
+  "name": "lasso-contracts",
+  "description": "Smart contracts for the Lasso protocol",
   "version": "1.0.0",
   "author": {
-    "name": "Paul Razvan Berg",
-    "url": "https://github.com/paulrberg"
+    "name": "Lasso",
+    "url": "http://www.lasso.gg/"
   },
   "devDependencies": {
-    "@commitlint/cli": "^17.0.1",
-    "@commitlint/config-conventional": "^17.0.0",
     "@ethersproject/abi": "^5.6.3",
     "@ethersproject/abstract-signer": "^5.6.2",
     "@ethersproject/bignumber": "^5.6.2",
@@ -17,6 +15,7 @@
     "@nomiclabs/hardhat-ethers": "^2.0.6",
     "@nomiclabs/hardhat-etherscan": "^3.0.3",
     "@nomiclabs/hardhat-waffle": "^2.0.3",
+    "@superfluid-finance/ethereum-contracts": "^1.2.2",
     "@trivago/prettier-plugin-sort-imports": "^3.2.0",
     "@typechain/ethers-v5": "^10.0.0",
     "@typechain/hardhat": "^6.0.0",
@@ -38,7 +37,6 @@
     "fs-extra": "^10.1.0",
     "hardhat": "^2.9.6",
     "hardhat-gas-reporter": "^1.0.8",
-    "husky": "^8.0.1",
     "lint-staged": "^12.4.2",
     "lodash": "^4.17.21",
     "mocha": "^10.0.0",
@@ -78,9 +76,6 @@
     "lint": "yarn lint:sol && yarn lint:ts && yarn prettier:check",
     "lint:sol": "solhint --config ./.solhint.json --max-warnings 0 \"contracts/**/*.sol\"",
     "lint:ts": "eslint --config ./.eslintrc.yaml --ignore-path ./.eslintignore --ext .js,.ts .",
-    "postinstall": "husky install",
-    "postpublish": "pinst --enable",
-    "prepublishOnly": "pinst --disable",
     "prettier": "prettier --config ./.prettierrc.yaml --write \"**/*.{js,json,md,sol,ts,yaml,yml}\"",
     "prettier:check": "prettier --check --config ./.prettierrc.yaml \"**/*.{js,json,md,sol,ts,yaml,yml}\"",
     "test": "hardhat test",

@@ -2,6 +2,7 @@ import "@nomiclabs/hardhat-etherscan";
 import "@nomiclabs/hardhat-waffle";
 import "@typechain/hardhat";
 import { config as dotenvConfig } from "dotenv";
+import { Wallet } from "ethers";
 import "hardhat-gas-reporter";
 import { HardhatUserConfig } from "hardhat/config";
 import { NetworkUserConfig } from "hardhat/types";
@@ -9,45 +10,37 @@ import { resolve } from "path";
 import "solidity-coverage";
 
 import "./tasks/accounts";
-import "./tasks/deploy";
 
 dotenvConfig({ path: resolve(__dirname, "./.env") });
 
 // Ensure that we have all the environment variables we need.
-const mnemonic: string | undefined = process.env.MNEMONIC;
-if (!mnemonic) {
-  throw new Error("Please set your MNEMONIC in a .env file");
+let mnemonic = process.env.MNEMONIC || "";
+const privatekey = process.env.PRIVATEKEY || "";
+let wallet;
+if (mnemonic) {
+  wallet = Wallet.fromMnemonic(mnemonic);
+} else if (privatekey) {
+  wallet = new Wallet(privatekey);
+} else {
+  console.warn("Please set MNEMONIC or PRIVATEKEY in a .env file.");
+  mnemonic = Wallet.createRandom().mnemonic.phrase;
+  console.warn("RANDOM MNEMONIC used: " + mnemonic);
+  wallet = Wallet.fromMnemonic(mnemonic);
+  console.log("Using wallet with address: " + wallet.address);
 }
 
-const infuraApiKey: string | undefined = process.env.INFURA_API_KEY;
-if (!infuraApiKey) {
-  throw new Error("Please set your INFURA_API_KEY in a .env file");
+const moralisApiKey: string | undefined = process.env.MORALIS_API_KEY;
+if (!moralisApiKey) {
+  throw new Error("Please set your MORALIS_API_KEY in a .env file");
 }
 
 const chainIds = {
-  "arbitrum-mainnet": 42161,
-  avalanche: 43114,
-  bsc: 56,
   hardhat: 31337,
-  mainnet: 1,
-  "optimism-mainnet": 10,
-  "polygon-mainnet": 137,
-  "polygon-mumbai": 80001,
-  rinkeby: 4,
+  mainnet: 137,
+  mumbai: 80001,
 };
 
 function getChainConfig(chain: keyof typeof chainIds): NetworkUserConfig {
-  let jsonRpcUrl: string;
-  switch (chain) {
-    case "avalanche":
-      jsonRpcUrl = "https://api.avax.network/ext/bc/C/rpc";
-      break;
-    case "bsc":
-      jsonRpcUrl = "https://bsc-dataseed1.binance.org";
-      break;
-    default:
-      jsonRpcUrl = "https://" + chain + ".infura.io/v3/" + infuraApiKey;
-  }
   return {
     accounts: {
       count: 10,
@@ -55,7 +48,7 @@ function getChainConfig(chain: keyof typeof chainIds): NetworkUserConfig {
       path: "m/44'/60'/0'/0",
     },
     chainId: chainIds[chain],
-    url: jsonRpcUrl,
+    url: `https://speedy-nodes-nyc.moralis.io/${moralisApiKey}/polygon/${chain}`,
   };
 }
 
@@ -63,14 +56,8 @@ const config: HardhatUserConfig = {
   defaultNetwork: "hardhat",
   etherscan: {
     apiKey: {
-      arbitrumOne: process.env.ARBISCAN_API_KEY,
-      avalanche: process.env.SNOWTRACE_API_KEY,
-      bsc: process.env.BSCSCAN_API_KEY,
-      mainnet: process.env.ETHERSCAN_API_KEY,
-      optimisticEthereum: process.env.OPTIMISM_API_KEY,
       polygon: process.env.POLYGONSCAN_API_KEY,
       polygonMumbai: process.env.POLYGONSCAN_API_KEY,
-      rinkeby: process.env.ETHERSCAN_API_KEY,
     },
   },
   gasReporter: {
@@ -86,14 +73,8 @@ const config: HardhatUserConfig = {
       },
       chainId: chainIds.hardhat,
     },
-    arbitrum: getChainConfig("arbitrum-mainnet"),
-    avalanche: getChainConfig("avalanche"),
-    bsc: getChainConfig("bsc"),
-    mainnet: getChainConfig("mainnet"),
-    optimism: getChainConfig("optimism-mainnet"),
-    "polygon-mainnet": getChainConfig("polygon-mainnet"),
-    "polygon-mumbai": getChainConfig("polygon-mumbai"),
-    rinkeby: getChainConfig("rinkeby"),
+    "polygon-mainnet": getChainConfig("mainnet"),
+    "polygon-mumbai": getChainConfig("mumbai"),
   },
   paths: {
     artifacts: "./artifacts",
