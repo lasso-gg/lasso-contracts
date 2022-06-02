@@ -9,7 +9,7 @@ import { IConstantFlowAgreementV1 } from "@superfluid-finance/ethereum-contracts
 import { CFAv1Library } from "@superfluid-finance/ethereum-contracts/contracts/apps/CFAv1Library.sol";
 
 error FlowRateZero();
-error ServiceActive(address owner);
+error ServiceAlreadyActive(address owner);
 
 contract Lasso {
     using CFAv1Library for CFAv1Library.InitData;
@@ -42,9 +42,11 @@ contract Lasso {
         uint256 _flowRate
     ) external returns (Service memory) {
         if (_flowRate == 0) revert FlowRateZero();
-        if (services[msg.sender].active == true) revert ServiceActive(msg.sender);
+        if (services[msg.sender].active == true) revert ServiceAlreadyActive(msg.sender);
 
         services[msg.sender] = Service(true, block.timestamp, 0, _flowRate, _title, _subscriptionType);
+
+        emit ServiceCreated(msg.sender, block.timestamp, _flowRate, _title, _subscriptionType);
 
         return services[msg.sender];
     }
