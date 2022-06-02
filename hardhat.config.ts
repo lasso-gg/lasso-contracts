@@ -34,8 +34,12 @@ if (!moralisApiKey) {
   throw new Error("Please set your MORALIS_API_KEY in a .env file");
 }
 
+const alchemyApiKey: string | undefined = process.env.ALCHEMY_API_KEY;
+if (!alchemyApiKey) {
+  throw new Error("Please set your ALCHEMY_API_KEY in a .env file");
+}
+
 const chainIds = {
-  hardhat: 31337,
   mainnet: 137,
   mumbai: 80001,
 };
@@ -71,7 +75,7 @@ const config: HardhatUserConfig = {
       accounts: {
         mnemonic,
       },
-      chainId: chainIds.hardhat,
+      forking: { url: `https://polygon-mumbai.g.alchemy.com/v2/${alchemyApiKey}` },
     },
     "polygon-mainnet": getChainConfig("mainnet"),
     "polygon-mumbai": getChainConfig("mumbai"),
